@@ -6,6 +6,10 @@ PNG graphs, PDF report).
 
 It starts in **simulation**, so you can try everything before any hardware is connected.
 
+See **`docs/OPERATING_GUIDE.md`** for the full step-by-step manual (setup, dashboard
+walkthrough, hardware bring-up order, a session checklist, trip troubleshooting, glossary).
+This README is just the short version.
+
 ## 1. Install (Windows)
 1. Install Python 3.10 or newer from python.org (tick "Add Python to PATH").
 2. In this folder, open a terminal and run:
