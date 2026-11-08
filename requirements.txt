@@ -1,0 +1,9 @@
+nicegui>=3.0
+numpy
+matplotlib
+pyserial
+pyvisa
+pyvisa-py
+picosdk
+pytest
+pytest-asyncio
