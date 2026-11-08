@@ -70,6 +70,9 @@ real electricity — slow down.
 
 ## 3. What each part of the dashboard means
 
+This section is the short version. For every control explained in full, and an in-depth
+look at exactly what gets logged, where, and in what file format, see **`docs/APP_GUIDE.md`**.
+
 - **Header badges:** Rigol / Arduino / Scope show grey (not connected), or a colour once
   connected. **SIMULATION** (orange) means no real device is in the loop for whichever
   parts are still set to "sim". **not armed / ARMED** shows whether the coil driver is
@@ -288,6 +291,7 @@ config.json        your settings — created by `python -m spark_ignitor init-co
 data/              every run's own folder: shots.csv, settings.json, waveforms, reports
 docs/HARDWARE.md          wiring, breadboard holes, part notes
 docs/PROJECT_CONTEXT.md   why things were designed this way, open questions, team history
+docs/APP_GUIDE.md         every dashboard control explained, in-depth data logging reference
 docs/assets/              schematics, breadboard photos, parts lists, example report
 CLAUDE.md                 instructions for an AI assistant working on this code
 README.md                 short version of install + hardware bring-up

@@ -3,7 +3,9 @@
 Read this file first, then `docs/PROJECT_CONTEXT.md` (background, decisions, open questions) and `docs/HARDWARE.md`
 (circuit, wiring, parts). Figures and the team's spreadsheets are in `docs/assets/`. `docs/OPERATING_GUIDE.md` is the
 step-by-step manual for actually running a session (setup, dashboard, hardware bring-up order, trip troubleshooting,
-glossary) — point the user there for "how do I..." questions rather than re-deriving the steps.
+glossary) — point the user there for "how do I..." questions rather than re-deriving the steps. `docs/APP_GUIDE.md` is
+the detailed dashboard reference (every control, exactly what gets logged, file formats, export behaviour) — point
+the user there for "what does this button do" or data-logging questions.
 
 ## What this is
 A university team is building a **railplug** ignition system. Stage A (a normal spark plug driven by an automotive coil)
