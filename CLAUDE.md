@@ -43,6 +43,9 @@ python -m spark_ignitor scope-check     # which PicoScope series is connected
 python -m spark_ignitor scope-test      # one block capture from the real scope (no trigger)
 ```
 Install: `pip install -r requirements.txt` (Python 3.10+, NiceGUI 4.x was used, numpy, matplotlib, pyserial, pyvisa, pyvisa-py, picosdk).
+**Setup on a new PC:** double-click `setup.bat` once (creates `.venv`, installs everything, runs the selftest), then
+`START_DASHBOARD.bat` to start the dashboard (port 8080, or the next free port). Full checklist: `SETUP.md`.
+Run commands with `.venv\Scripts\python.exe -m ...` so the venv packages are used.
 
 ## Architecture (package `spark_ignitor/`)
 - `config.py` Config dataclass + JSON. Modes: `arduino_mode` sim|real, `rigol_mode` sim|real, `scope_mode` sim|ps2000a|ps3000a|ps5000a.

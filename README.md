@@ -13,17 +13,13 @@ depth — exactly what gets logged, where, and in what format. This README is ju
 version.
 
 ## 1. Install (Windows)
-1. Install Python 3.10 or newer from python.org (tick "Add Python to PATH").
-2. In this folder, open a terminal and run:
-   ```
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
-   python -m spark_ignitor selftest
-   ```
-   You should see `ALL TESTS PASSED`.
-3. Start the dashboard: double-click `START_DASHBOARD.bat` (or `python -m spark_ignitor dashboard`) and open
-   **http://localhost:8080**.
+Full step-by-step guide for a new PC: **`SETUP.md`**.
+
+1. Install Python 3.12 (or 3.10 or newer) from python.org. Tick "Add python.exe to PATH".
+2. Double-click **`setup.bat`** once. It creates `.venv`, installs everything in `requirements.txt`, and runs the selftest.
+   It must end with `SETUP COMPLETE`.
+3. Double-click **`START_DASHBOARD.bat`** and open the address it shows (**http://localhost:8080**, or 8081 if 8080 is busy).
+   Keep the black window open while you use the page.
 
 ## 2. Try it in simulation
 Press **Connect**, then **Fire once** or **Run batch**. The waveform, the numbers and the shot table update after each shot.
