@@ -152,8 +152,8 @@ step 4's checks passed.**
 1. Close PicoScope 7 (the manufacturer's own app) — only one program can use the scope at
    a time.
 2. Install the PicoSDK matching your Python's bit-width (32- or 64-bit — they must match).
-3. Run `python -m spark_ignitor scope-check`. It tells you the series (only `ps2000a` and
-   `ps3000a` are supported here; if yours is a 4000A/5000A series, the code needs
+3. Run `python -m spark_ignitor scope-check`. It tells you the series (`ps2000a`, `ps3000a` and
+   `ps5000a` are supported here; if yours is a 4000A series, the code needs
    extending first — ask for help rather than guessing).
 4. Set `scope_mode` in `config.json` (or in the Devices panel) to that series.
 5. Run `python -m spark_ignitor scope-test` — this captures one block **without** firing

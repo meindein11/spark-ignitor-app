@@ -45,7 +45,7 @@ class SimScope:
 
 
 class PicoScope:
-    """PicoScope 2000A / 3000A series through Pico's Python wrappers (picosdk).
+    """PicoScope 2000A / 3000A / 5000A series through Pico's Python wrappers (picosdk).
 
     NOT TESTED ON HARDWARE. It follows Pico's published block-mode example and the function signatures
     of the installed picosdk package. Check it first with:  python -m spark_ignitor scope-test
@@ -73,7 +73,10 @@ class PicoScope:
             raise DeviceError(f"cannot load the PicoSDK for {self.series}: {e}. Install the PicoSDK "
                               f"(same 32/64-bit as Python) and close PicoScope 7.")
         self._assert, self._adc2mV, self._mV2adc = assert_pico_ok, adc2mV, mV2adc
-        st = self._fn("OpenUnit")(ctypes.byref(self.h), None)
+        if self.series == "ps5000a":                               # 5000 series: pick 8-bit mode (fastest, simple timebase)
+            st = self._fn("OpenUnit")(ctypes.byref(self.h), None, self._enum("DEVICE_RESOLUTION", "DR_8BIT"))
+        else:
+            st = self._fn("OpenUnit")(ctypes.byref(self.h), None)
         if st in (282, 286):                                       # USB power messages
             change = getattr(self.ps, f"{self.series}ChangePowerSource", None)
             if change is None:
@@ -95,7 +98,10 @@ class PicoScope:
         for _ in range(40):
             interval = ctypes.c_float()
             max_samples = ctypes.c_int32()
-            st = self._fn("GetTimebase2")(self.h, n, self.samples, ctypes.byref(interval), 1, ctypes.byref(max_samples), 0)
+            if self.series == "ps5000a":                           # no 'oversample' argument on the 5000 series
+                st = self._fn("GetTimebase2")(self.h, n, self.samples, ctypes.byref(interval), ctypes.byref(max_samples), 0)
+            else:
+                st = self._fn("GetTimebase2")(self.h, n, self.samples, ctypes.byref(interval), 1, ctypes.byref(max_samples), 0)
             if st == 0:
                 break
             n += 1
@@ -117,7 +123,10 @@ class PicoScope:
                                                   self._enum("THRESHOLD_DIRECTION", "RISING"), 0, int(auto_trigger_ms)))
         pre = int(self.samples * c.pretrigger_frac)
         post = self.samples - pre
-        self._assert(self._fn("RunBlock")(self.h, pre, post, self.timebase, 1, None, 0, None, None))
+        if self.series == "ps5000a":
+            self._assert(self._fn("RunBlock")(self.h, pre, post, self.timebase, None, 0, None, None))
+        else:
+            self._assert(self._fn("RunBlock")(self.h, pre, post, self.timebase, 1, None, 0, None, None))
 
     def read(self, timeout=2.0):
         ready = ctypes.c_int16(0)

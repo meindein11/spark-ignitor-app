@@ -130,8 +130,61 @@ def test_sweep_and_exports():
         rig.disconnect()
 
 
+def test_ps5000a_calls():
+    """Runs PicoScope(series='ps5000a') against a fake picosdk whose functions have the 5000A argument lists."""
+    import ctypes
+    import sys
+    import types
+    from .scope import PicoScope
+    calls = []
+
+    def fake(name, nargs, fill=None):
+        def f(*a):
+            assert len(a) == nargs, f"{name} got {len(a)} arguments, the 5000A API has {nargs}"
+            calls.append(name)
+            if fill:
+                fill(*a)
+            return 0
+        return f
+
+    def timebase(h, n, ns, interval, maxs, seg):
+        interval._obj.value = (n - 2) * 8.0 if n >= 3 else 1.0; maxs._obj.value = 1000000
+
+    def values(h, start, n, ratio, mode, seg, ovf):
+        pass
+    ps = types.SimpleNamespace(
+        ps5000aOpenUnit=fake("OpenUnit", 3), ps5000aSetChannel=fake("SetChannel", 6),
+        ps5000aMaximumValue=fake("MaximumValue", 2, lambda h, m: setattr(m._obj, "value", 32512)),
+        ps5000aGetTimebase2=fake("GetTimebase2", 6, timebase), ps5000aSetSimpleTrigger=fake("SetSimpleTrigger", 7),
+        ps5000aRunBlock=fake("RunBlock", 8), ps5000aIsReady=fake("IsReady", 2, lambda h, r: setattr(r._obj, "value", 1)),
+        ps5000aSetDataBuffers=fake("SetDataBuffers", 7), ps5000aGetValues=fake("GetValues", 7, values),
+        ps5000aStop=fake("Stop", 1), ps5000aCloseUnit=fake("CloseUnit", 1),
+        PS5000A_RANGE={"PS5000A_2V": 7}, PS5000A_CHANNEL={"PS5000A_CHANNEL_A": 0, "PS5000A_CHANNEL_B": 1},
+        PS5000A_COUPLING={"PS5000A_DC": 1}, PS5000A_THRESHOLD_DIRECTION={"PS5000A_RISING": 2},
+        PS5000A_RATIO_MODE={"PS5000A_RATIO_MODE_NONE": 0}, PS5000A_DEVICE_RESOLUTION={"PS5000A_DR_8BIT": 0})
+    pkg = types.ModuleType("picosdk"); mod = types.ModuleType("picosdk.ps5000a"); mod.ps5000a = ps
+    fun = types.ModuleType("picosdk.functions")
+    fun.assert_pico_ok = lambda st: (_ for _ in ()).throw(RuntimeError(st)) if st else None
+    fun.adc2mV = lambda buf, rng, mx: [0.0] * len(buf)
+    fun.mV2adc = lambda mv, rng, mx: 100
+    saved = {k: sys.modules.get(k) for k in ("picosdk", "picosdk.ps5000a", "picosdk.functions")}
+    sys.modules.update({"picosdk": pkg, "picosdk.ps5000a": mod, "picosdk.functions": fun})
+    try:
+        sc = PicoScope(Config(), series="ps5000a")
+        sc.open(); sc.start(auto_trigger_ms=500); d = sc.read(timeout=1.0); sc.close()
+    finally:
+        for k, v in saved.items():
+            sys.modules.pop(k, None)
+            if v is not None:
+                sys.modules[k] = v
+    assert abs(sc.dt - 2e-6) < 0.1e-6, sc.dt                      # 2 us requested; 8 ns steps
+    assert len(d["i_coil"]) == sc.samples == 5000
+    for name in ("OpenUnit", "GetTimebase2", "RunBlock", "GetValues", "CloseUnit"):
+        assert name in calls, (name, calls)
+
+
 TESTS = [test_physics_good_shot, test_physics_misfire, test_safety, test_arduino_protocol, test_rigol_commands,
-         test_batch_and_trip, test_sweep_and_exports]
+         test_batch_and_trip, test_sweep_and_exports, test_ps5000a_calls]
 
 
 def run_all():

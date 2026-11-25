@@ -37,7 +37,7 @@ def main(argv=None):
         from .scope import check_connected
         try:
             name, info = check_connected()
-            print(f"Found a PicoScope. Driver series: {name}\n{info}\nSet scope_mode to '{name}' in config.json (supported here: ps2000a, ps3000a).")
+            print(f"Found a PicoScope. Driver series: {name}\n{info}\nSet scope_mode to '{name}' in config.json (supported here: ps2000a, ps3000a, ps5000a).")
         except Exception as e:
             print(f"No scope found or the PicoSDK is missing: {type(e).__name__}: {e}\nClose PicoScope 7 and check the USB cable.")
             return 1
@@ -46,7 +46,7 @@ def main(argv=None):
     if a.cmd == "scope-test":
         from .scope import PicoScope
         if cfg.scope_mode == "sim":
-            print("scope_mode is 'sim' in the config. Set it to ps2000a or ps3000a first."); return 1
+            print("scope_mode is 'sim' in the config. Set it to ps2000a, ps3000a or ps5000a first."); return 1
         sc = PicoScope(cfg, cfg.scope_mode); sc.open()
         try:
             sc.start(auto_trigger_ms=500); d = sc.read(timeout=3.0)
@@ -55,7 +55,7 @@ def main(argv=None):
         print(f"OK: {len(d['i_coil'])} samples, dt = {d['dt'] * 1e6:.2f} us\n coil current: min {d['i_coil'].min():.3f} A, max {d['i_coil'].max():.3f} A\n spark current: min {d['i_spark'].min() * 1e3:.2f} mA, max {d['i_spark'].max() * 1e3:.2f} mA")
         return 0
     from .app import run_dashboard
-    run_dashboard(cfg, a.port, Path(cfg.data_dir))
+    run_dashboard(cfg, a.port, Path(cfg.data_dir), config_path=a.config)
     return 0
 
 

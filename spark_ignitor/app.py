@@ -30,8 +30,17 @@ def _heat(sw, key, title, pct):
             "series": [{"type": "heatmap", "data": data, "label": {"show": True, "formatter": "{@[2]}" + ("%" if pct else "")}}]}
 
 
-def build(rig: Rig):
+def build(rig: Rig, config_path=None):
     cfg = rig.cfg
+
+    def save_settings(*_):
+        """Write the Devices panel settings back to config.json, so they survive a restart."""
+        if config_path is None:
+            return
+        try:
+            cfg.save(config_path)
+        except OSError as e:
+            ui.notify(f"Could not save settings to {config_path}: {e}", type="warning", multi_line=True)
 
     @ui.page("/")
     def index():
@@ -87,11 +96,11 @@ def build(rig: Rig):
                 ui.label("Every run arms the coil itself and switches everything off when it ends.").classes("text-caption text-grey")
                 with ui.expansion("Devices", icon="usb").classes("w-full") as dev_box:
                     dev_inputs = [
-                        ui.select({"sim": "Arduino: simulated", "real": "Arduino: real"}, value=cfg.arduino_mode).bind_value(cfg, "arduino_mode").classes("w-full"),
-                        ui.input("Arduino port (for example COM3)").bind_value(cfg, "arduino_port").classes("w-full"),
-                        ui.select({"sim": "Rigol: simulated", "real": "Rigol: real"}, value=cfg.rigol_mode).bind_value(cfg, "rigol_mode").classes("w-full"),
-                        ui.input("Rigol VISA resource").bind_value(cfg, "rigol_resource").classes("w-full"),
-                        ui.select({"sim": "Scope: simulated", "ps2000a": "PicoScope 2000A series", "ps3000a": "PicoScope 3000A series"}, value=cfg.scope_mode).bind_value(cfg, "scope_mode").classes("w-full")]
+                        ui.select({"sim": "Arduino: simulated", "real": "Arduino: real"}, value=cfg.arduino_mode).bind_value(cfg, "arduino_mode").classes("w-full").on_value_change(save_settings),
+                        ui.input("Arduino port (for example COM3)").bind_value(cfg, "arduino_port").classes("w-full").on_value_change(save_settings),
+                        ui.select({"sim": "Rigol: simulated", "real": "Rigol: real"}, value=cfg.rigol_mode).bind_value(cfg, "rigol_mode").classes("w-full").on_value_change(save_settings),
+                        ui.input("Rigol VISA resource").bind_value(cfg, "rigol_resource").classes("w-full").on_value_change(save_settings),
+                        ui.select({"sim": "Scope: simulated", "ps2000a": "PicoScope 2000A series", "ps3000a": "PicoScope 3000A series", "ps5000a": "PicoScope 5000A series"}, value=cfg.scope_mode).bind_value(cfg, "scope_mode").classes("w-full").on_value_change(save_settings)]
 
             # ------------------------------------------------------------------ live view
             with ui.column().classes("grow"):
@@ -208,8 +217,8 @@ def build(rig: Rig):
         ui.timer(0.3, refresh)
 
 
-def run_dashboard(cfg, port=8080, root=None):
+def run_dashboard(cfg, port=8080, root=None, config_path=None):
     rig = Rig(cfg, root)
-    build(rig)
+    build(rig, config_path)
     app.on_shutdown(rig.disconnect)
     ui.run(title="Spark ignitor", port=port, reload=False, show=False)

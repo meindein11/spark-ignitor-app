@@ -36,7 +36,7 @@ Do these in order. Do not connect the coil until step 5 works.
 1. **Arduino:** open `firmware/spark_trigger/spark_trigger.ino` in the Arduino IDE and upload it (board: Arduino Uno).
 2. **Find the devices:** `python -m spark_ignitor ports` lists the COM port and the Rigol's VISA name.
 3. **PicoScope:** close PicoScope 7, install the PicoSDK (same 32/64-bit as Python), then run
-   `python -m spark_ignitor scope-check`. It tells you the series. Support here: `ps2000a` and `ps3000a`.
+   `python -m spark_ignitor scope-check`. It tells you the series. Support here: `ps2000a`, `ps3000a` and `ps5000a`.
 4. **Edit `config.json`** (create it with `python -m spark_ignitor init-config`): set `arduino_mode`, `rigol_mode`
    to `real`, `arduino_port`, `rigol_resource`, `scope_mode`, and your measured `L_mH`, `R_ohm`, `clamp_V_per_A`, `shunt_ohm`.
    Then `python -m spark_ignitor scope-test` captures one block without a trigger to check the scope settings.

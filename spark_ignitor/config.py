@@ -35,7 +35,7 @@ class Config:
     arduino_port: str = "COM3"
     rigol_mode: str = "sim"        # sim | real
     rigol_resource: str = ""       # for example USB0::0x1AB1::0x0E11::DP8...::INSTR
-    scope_mode: str = "sim"        # sim | ps2000a | ps3000a
+    scope_mode: str = "sim"        # sim | ps2000a | ps3000a | ps5000a
     # ---- files
     data_dir: str = "data"
     waveform_every: int = 10       # save raw waveforms of every Nth shot

@@ -1,5 +1,6 @@
 import asyncio
 import tempfile
+from pathlib import Path
 from nicegui import ui
 from nicegui.testing import User
 from spark_ignitor.app import build
@@ -59,6 +60,16 @@ async def test_trip_shows_on_page_and_blocks_runs(user: User):
         await user.should_see(content="TRIP: peak current")
         assert not rig.rigol.on and not rig.arduino.armed
         rig.reset_trip(); rig.disconnect()
+
+
+async def test_devices_panel_saves_config(user: User):
+    with tempfile.TemporaryDirectory() as tmp:
+        cfg_path = Path(tmp) / "config.json"
+        rig = Rig(Config(min_rest_s=0.0, data_dir=tmp)); build(rig, cfg_path)
+        await user.open("/")
+        user.find(kind=ui.input, content="Arduino port").elements.pop().value = "COM9"
+        assert Config.load(cfg_path).arduino_port == "COM9"
+        rig.disconnect()
 
 
 async def test_stop_button_ends_auto_fire(user: User):

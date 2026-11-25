@@ -45,7 +45,7 @@ python -m spark_ignitor scope-test      # one block capture from the real scope 
 Install: `pip install -r requirements.txt` (Python 3.10+, NiceGUI 4.x was used, numpy, matplotlib, pyserial, pyvisa, pyvisa-py, picosdk).
 
 ## Architecture (package `spark_ignitor/`)
-- `config.py` Config dataclass + JSON. Modes: `arduino_mode` sim|real, `rigol_mode` sim|real, `scope_mode` sim|ps2000a|ps3000a.
+- `config.py` Config dataclass + JSON. Modes: `arduino_mode` sim|real, `rigol_mode` sim|real, `scope_mode` sim|ps2000a|ps3000a|ps5000a.
 - `arduino.py` `Arduino` (pyserial, thread lock, handles unsolicited `WDG SAFE`) and `SimArduino`. Protocol below.
 - `rigol.py` `Rigol` (pyvisa, checks `:SYST:ERR?` after every write) and `SimRigol`.
 - `scope.py` `SimScope` (coil model), `PicoScope` (picosdk, series by module name), `make_scope`, `check_connected`.
@@ -77,13 +77,15 @@ Exact syntax of the OVP commands is NOT yet confirmed on the real supply (see Ri
 ## Current status
 - Done and tested in simulation: everything above (7 selftests, 4 UI tests, exports incl. PDF).
 - NOT tested: real Rigol, real Arduino + firmware, real PicoScope, the visual look of the dashboard (no browser was available when it was written).
-- PicoScope series of the team's scope is unknown: run `scope-check`. Only ps2000a and ps3000a are implemented; trigger is an analogue rising edge on channel A.
+- The team's scope is a **PicoScope 5000 series** (user-confirmed); `scope_mode = "ps5000a"` was added (8-bit mode, no `oversample` argument in
+  `GetTimebase2`/`RunBlock`, `OpenUnit` takes a resolution). Tested only against a fake picosdk, not the real scope; run `scope-check` / `scope-test`.
+  ps2000a and ps3000a also exist; trigger is an analogue rising edge on channel A.
 
 ## Next steps (suggested order)
 1. Run selftest, pytest and the dashboard on the user's PC; look at the page and fix layout problems.
 2. Upload the firmware; test `Arduino` driver against the real board (`D`, `A`, `F`, `X`, watchdog).
 3. Real Rigol with nothing connected: confirm command syntax, especially the OVP commands.
-4. `scope-check`, then `scope-test`; extend `PicoScope` if the series is not 2000A/3000A (4000A/5000A use different calls).
+4. `scope-check`, then `scope-test`; check the new `ps5000a` path on the real scope and fix what differs.
 5. Bench trigger-pulse check (pulse width vs dwell), then coil tests, supervised, low voltage first.
 6. Calibrate: measured L and R of the coil, current-clamp scale (V/A), shunt value; replace the estimates in config.json.
 7. Later: stage B (railplug) support: charge C2, HV charger control, relay K1, Rogowski coil channel, HV probe channel.
